@@ -1,11 +1,11 @@
-from burp import IBurpExtender
+﻿from burp import IBurpExtender
 from burp import IScannerCheck
 from burp import IScanIssue
 from array import array
 import re
 
-REGEX = "(<a .*?_blank.*/a>)"
-REGEX2 = "window.open.*?\)"
+REGEX = "(<a .*?_blank.*?>)"
+REGEX2 = "(window.open.*;)"
 
 class BurpExtender(IBurpExtender, IScannerCheck):
 
@@ -39,7 +39,7 @@ class BurpExtender(IBurpExtender, IScannerCheck):
             return match
         else:
             return "None"
-    
+
     def remove_repetidos(self, lista):
         l = []
         for i in lista:
@@ -54,36 +54,31 @@ class BurpExtender(IBurpExtender, IScannerCheck):
         responseString = x.tostring()
         regex = self._match_obj(REGEX, responseString)
         regex2 = self._match_obj(REGEX2, responseString)
-
-        if(regex == "None"):
-            return None
-        if(regex2 == "None"):
-            return None
-
-        result = [x for x in regex if x.find("noopener") == -1 ]
-        result2 = [x for x in regex2 if x.find("noopener") == -1 ] 
-
-        if(len(result) == 0):
-            return None
-        if(len(result2) == 0):
-            return None
-
         matches361 = []
-        for element in result:
-            matches361.append(self._get_matches(responseString, bytearray(element)))
 
-        for element in result2:
-            matches361.append(self._get_matches(responseString, bytearray(element)))
-        
+        if(regex == "None" and regex2 == "None"):
+            return None
+
+        if(regex != "None"):
+            result = [x for x in regex if x.find("noopener") == -1 ]
+            if(len(result) == 0):
+                return None
+            else:
+                for element in result:
+                    matches361.append(self._get_matches(responseString, self._helpers.stringToBytes(element)))
+
+        if(regex2 != "None"):
+            result2 = [x for x in regex2]
+            for element in result2:
+                matches361.append(self._get_matches(responseString, self._helpers.stringToBytes(element)))
+
         flat_list = []
         for sublist in matches361:
             for item in sublist:
                 flat_list.append(item)
 
         matches13 = self.remove_repetidos(flat_list)
-      
-        
-       
+
         return [CustomScanIssue(
             baseRequestResponse.getHttpService(),
             self._helpers.analyzeRequest(baseRequestResponse).getUrl(),
@@ -100,36 +95,31 @@ class BurpExtender(IBurpExtender, IScannerCheck):
         responseString = x.tostring()
         regex = self._match_obj(REGEX, responseString)
         regex2 = self._match_obj(REGEX2, responseString)
-
-        if(regex == "None"):
-            return None
-        if(regex2 == "None"):
-            return None
-
-        result = [x for x in regex if x.find("noopener") == -1 ]
-        result2 = [x for x in regex2 if x.find("noopener") == -1 ] 
-
-        if(len(result) == 0):
-            return None
-        if(len(result2) == 0):
-            return None
-
         matches361 = []
-        for element in result:
-            matches361.append(self._get_matches(responseString, bytearray(element)))
 
-        for element in result2:
-            matches361.append(self._get_matches(responseString, bytearray(element)))
-        
+        if(regex == "None" and regex2 == "None"):
+            return None
+
+        if(regex != "None"):
+            result = [x for x in regex if x.find("noopener") == -1 ]
+            if(len(result) == 0):
+                return None
+            else:
+                for element in result:
+                    matches361.append(self._get_matches(responseString, self._helpers.stringToBytes(element)))
+
+        if(regex2 != "None"):
+            result2 = [x for x in regex2]
+            for element in result2:
+                matches361.append(self._get_matches(responseString, self._helpers.stringToBytes(element)))
+
         flat_list = []
         for sublist in matches361:
             for item in sublist:
                 flat_list.append(item)
 
         matches13 = self.remove_repetidos(flat_list)
-      
-        
-       
+
         return [CustomScanIssue(
             baseRequestResponse.getHttpService(),
             self._helpers.analyzeRequest(baseRequestResponse).getUrl(),
